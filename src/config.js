@@ -7,7 +7,7 @@ const config = {
     get UPLOAD_DIR() { return `${this.DIRNAME}/public/uploads` },
     // Constante con la ruta de conexión a la base de datos, en este caso en servidor MongoDB local
     // MONGODB_URI: 'mongodb://127.0.0.1:27017/users',
-    MONGODB_URI: 'mongodb+srv://jonatanguinea7:642859Jj642859@cluster0.mesld.mongodb.net/ecommerce',
+    MONGODB_URI: process.env.MONGODB_URI,
 
     SECRET : 'codigoSecreto',
 
