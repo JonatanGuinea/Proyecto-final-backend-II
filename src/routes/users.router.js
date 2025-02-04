@@ -5,11 +5,22 @@ import initAuthStrategies from '../auth/passport.config.js';
 import { uploader } from '../uploader.js';
 import userManager from '../dao/users.manager.js';
 
-import {createToken, verifyToken} from '../utils.js'
+import {createToken, verifyToken, handlePolicies} from '../utils.js'
+
+import config from '../config.js'
 
 
 const router = Router();
 const manager = new userManager();
+
+
+router.param('id', async (req, res, next, id) => {
+    // Aprovechamos la expresión regular MONGODB_ID_REGEX,
+    // para ver si el id que llega por req.params contiene ese formato
+    if (!config.MONGODB_ID_REGEX.test(req.params.id)) return res.status(400).send({ error: 'Formato de Id tipo mongoDB no válido', data: [] });
+    next();
+})
+
 
 export const auth = (req, res, next) => {
 
@@ -176,7 +187,7 @@ router.post('/jwtlogin', async (req, res) => {
     if (username != '' && password != '') {
         const process = await manager.authenticate(username, password);
         if (process) {
-            const payload = { username: username, admin: true };
+            const payload = { username: username, role: process.role };
             // Generamos un token válido por 1 hora, y se lo devolvemos al cliente en la respuesta
             const token = createToken(payload, '1h');
             res.status(200).send({ error: null, data: { autentication: 'ok', token: token } });
@@ -203,11 +214,13 @@ router.get('/private', auth, (req, res) => {
 });
 
 
-router.get('/private2', verifyToken, (req, res) => {
+router.get('/private2', verifyToken, handlePolicies(['ADMIN', 'PREMIUM']), (req, res) => {
     res.status(200).send({ error: null, data: 'Este contenido solo es visible por usuarios autenticados' });
 });
 
-
+router.get('*',async (req, res)=>{
+    res.status(404).send({ error: 'No se encuentra la ruta especificada' , data:[] })
+})
 
 
 

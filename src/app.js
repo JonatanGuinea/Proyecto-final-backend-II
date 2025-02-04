@@ -57,6 +57,8 @@ const httpServer = app.listen(config.PORT, async() => {
     await mongoose.connect(config.MONGODB_URI);
     console.log(`Server activo en puerto ${config.PORT}, conectado a bbdd local`);
     
+    
+    
     const socketServer = new Server(httpServer);
     socketServer.on('connection', socket => {
         console.log(`Nuevo cliente conectado con id ${socket.id}`);

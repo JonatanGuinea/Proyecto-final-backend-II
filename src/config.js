@@ -11,10 +11,11 @@ const config = {
 
     SECRET : 'codigoSecreto',
 
-    GITHUB_CLIENT_ID: "Iv23lifxh3zbGdyUZLNJ",
-    GITHUB_APP_ID: "1097625",
-    GITHUB_SECRET:"f3b0e42820bc541e9a5c2d07e5fe34367c943439",
-    GITHUB_CALLBACK_URL: "http://localhost:5050/api/users/ghcallback"
+    GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+    GITHUB_APP_ID: process.env.GITHUB_APP_ID,
+    GITHUB_SECRET:process.env.GITHUB_SECRET,
+    GITHUB_CALLBACK_URL: process.env.GITHUB_CALLBACK_URL,
+    MONGODB_ID_REGEX: '/^[a-f\d]{24}$/i'
 };
 
 

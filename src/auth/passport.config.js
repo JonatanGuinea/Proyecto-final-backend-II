@@ -6,10 +6,11 @@
 
 import passport from 'passport';
 import local from 'passport-local';
-import userManager from '../dao/users.manager.js';
-
+import jwt from 'passport-jwt'
 import GitHubStrategy from 'passport-github2';
 
+
+import userManager from '../dao/users.manager.js';
 import config from '../config.js'
 
 const manager = new userManager();
