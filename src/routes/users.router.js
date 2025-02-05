@@ -1,3 +1,4 @@
+import {fork} from 'child_process'
 import { Router } from 'express';
 import passport from 'passport';
 import initAuthStrategies from '../auth/passport.config.js';
@@ -217,6 +218,33 @@ router.get('/private', auth, (req, res) => {
 router.get('/private2', verifyToken, handlePolicies(['ADMIN', 'PREMIUM']), (req, res) => {
     res.status(200).send({ error: null, data: 'Este contenido solo es visible por usuarios autenticados' });
 });
+
+
+
+
+router.get('/complexok', async (req, res) => {
+    const child = fork('src/complex.js');
+
+    child.send('start');
+
+    child.on('message', (result) => {
+        if (!res.headersSent) { // ✅ Evita múltiples respuestas
+            res.status(200).send({ error: null, data: result });
+        }
+        child.kill(); // ✅ Mata el proceso hijo después de la respuesta
+    });
+
+    child.on('error', (err) => {
+        if (!res.headersSent) {
+            res.status(500).send({ error: 'Error en el proceso hijo', details: err.message });
+        }
+    });
+
+    child.on('exit', (code) => {
+        console.log(`Proceso hijo terminado con código ${code}`);
+    });
+});
+
 
 router.get('*',async (req, res)=>{
     res.status(404).send({ error: 'No se encuentra la ruta especificada' , data:[] })

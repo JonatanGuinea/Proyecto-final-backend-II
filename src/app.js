@@ -62,6 +62,7 @@ const httpServer = app.listen(config.PORT, async() => {
     const socketServer = new Server(httpServer);
     socketServer.on('connection', socket => {
         console.log(`Nuevo cliente conectado con id ${socket.id}`);
+        
     
         socket.on('init_message', data => {
             console.log(data);
