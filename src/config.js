@@ -1,7 +1,9 @@
 import * as url from 'url';
-
+import dotenv from 'dotenv'
 import { Command } from 'commander';
 
+//en cas de no usa --env-files=.env, necesitaremos la siguiente límnea de comandos que ejecuta el dotenv para leer las variables de entorno establecidas
+dotenv.config({path: '.env'})
 
 const commandLine = new Command()
 

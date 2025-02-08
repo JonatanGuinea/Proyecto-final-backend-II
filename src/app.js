@@ -1,7 +1,6 @@
 import express from 'express';
 import handlebars from 'express-handlebars';
 import { Server } from 'socket.io';
-import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 // import FileStore from 'session-file-store'
@@ -17,6 +16,7 @@ import viewsRouter from './routes/views.router.js';
 import cookiesRouter from './routes/cookies.router.js';
 import config from './config.js';
 import  initAuthStrategies  from "./auth/passport.config.js";
+import MongoSingleton from './services/mongo.singleton.js';
 
 
 const app = express();
@@ -37,7 +37,8 @@ app.use(session({
     store: MongoStore.create({mongoUrl: config.MONGODB_URI, ttl:600 , mongoOptions:{}})
 }))
 
-app.use(cors({origin:'*'}))
+app.use(cors({origin:'*', credentials:true}))
+// app.use(cors({origin:'http://127.0.0.1:5501', credentials:true}))
 
 initAuthStrategies()
 app.use(passport.initialize())
@@ -54,7 +55,8 @@ app.use('/static', express.static(`${config.DIRNAME}/public`));
 
 // Convertimos el callback del listen en asíncrono y esperamos la conexión a la base de datos
 const httpServer = app.listen(config.PORT, async() => {
-    await mongoose.connect(config.MONGODB_URI);
+    //await mongoose.connect(config.MONGODB_URI);
+    MongoSingleton.getInstance()
     console.log(`Server activo en puerto ${config.PORT}, conectado a bbdd local`);
     
     

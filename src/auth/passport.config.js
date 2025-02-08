@@ -10,10 +10,10 @@ import jwt from 'passport-jwt'
 import GitHubStrategy from 'passport-github2';
 
 
-import userManager from '../dao/users.manager.js';
+import UserController from '../controller/user.controller.js';
 import config from '../config.js'
 
-const manager = new userManager();
+const controller = new UserController();
 const localStrategy = local.Strategy;
 
 const initAuthStrategies = () => {
@@ -22,8 +22,8 @@ const initAuthStrategies = () => {
         async (req, username, password, done) => {
             try {
                 if (username != '' && password != '') {
-                    // Para simplificar el código, podemos llamar directamente al manager.authenticate(). Ver dao/users.manager.js.
-                    const process = await manager.authenticate(username, password);
+                    // Para simplificar el código, podemos llamar directamente al controller.authenticate(). Ver controller/user.controller.js.
+                    const process = await controller.authenticate(username, password);
                     if (process) {
                         // Si el username (email) y los hash coinciden, process contendrá los datos de usuario,
                         // simplemente retornamos esos datos a través de done(), Passport los inyectará en el
@@ -55,7 +55,7 @@ const initAuthStrategies = () => {
     
                 // Si no hay email, usa el username o el ID
                 if (email || username) {
-                    const foundUser = await manager.getOne({ username: email || username });
+                    const foundUser = await controller.getOne({ username: email || username });
     
                     if (!foundUser) {
                         const user = {
@@ -65,7 +65,7 @@ const initAuthStrategies = () => {
                             password: 'none'
                         };
     
-                        const process = await manager.add(user);
+                        const process = await controller.add(user);
     
                         return done(null, process);
                     } else {

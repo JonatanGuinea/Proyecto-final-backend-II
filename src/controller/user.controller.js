@@ -1,13 +1,16 @@
-import userModel from './models/user.model.js';
+import UserService from "../services/user.service.mongo.js";
 import {createHash, isValidPassword} from '../utils.js'
 
+const service = new UserService();
 
-class UserManager {
+
+
+class UserController {
     constructor() {}
 
     get = async () => {
         try {
-            return await userModel.find().lean();
+            return await service.get();
         } catch (err) {
             return null;
         }
@@ -16,7 +19,7 @@ class UserManager {
 
     getOne = async (filter) => {
         try {
-            return await userModel.findOne(filter).lean();
+            return await service.getOne(filter);
         } catch (err) {
             return err.message;
         };
@@ -25,7 +28,7 @@ class UserManager {
     
     add = async (data) => {
         try {
-            return await(userModel.create(data));
+            return await service.add(data);
         } catch (err) {
             return null;
         }
@@ -33,7 +36,7 @@ class UserManager {
 
     update = async (filter, update, options) => {
         try {
-            return await userModel.findOneAndUpdate(filter, update, options);
+            return await service.update(filter, update, options);
         } catch (err) {
             return null;
         }
@@ -41,19 +44,13 @@ class UserManager {
 
     delete = async (filter, options) => {
         try {
-            return await userModel.findOneAndDelete(filter, options);
+            return await service.delete(filter, options);
         } catch (err) {
             return null;
         }
     }
 
-    /**
-     * Agregamos un método simple para autenticar
-     * 
-     * utiliza findOne para tratar de encontrar un documento que cumpla
-     * con el criterio especificado en el filtro, si lo encuentra, lo
-     * retorna, caso contrario devuelve null
-     */
+    
     authenticate = async (user, pass) => {
         try {
             const filter = { username: user };
@@ -61,7 +58,7 @@ class UserManager {
 
             //  const filter = { username: user, password: pass };
 
-            const foundUser = await userModel.findOne(filter).lean();
+            const foundUser = await service.getOne(filter);
             
 
             const validPass = isValidPassword(pass, foundUser.password )
@@ -88,7 +85,7 @@ class UserManager {
             }
     
             // Verificar si ya existe un usuario con el mismo username
-            const existingUser = await userModel.findOne( {username: data.username} );
+            const existingUser = await service.getOne( {username: data.username} );
     
             if (existingUser) {
                 return { success: false, error: 'El email o username ya están en uso' };
@@ -110,4 +107,4 @@ class UserManager {
 }
 
 
-export default UserManager;
+export default UserController;

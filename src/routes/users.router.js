@@ -4,7 +4,7 @@ import passport from 'passport';
 import initAuthStrategies from '../auth/passport.config.js';
 
 import { uploader } from '../uploader.js';
-import userManager from '../dao/users.manager.js';
+import UserController from '../controller/user.controller.js';
 
 import {createToken, verifyToken, handlePolicies} from '../utils.js'
 
@@ -12,7 +12,7 @@ import config from '../config.js'
 
 
 const router = Router();
-const manager = new userManager();
+const controller = new UserController();
 
 
 router.param('id', async (req, res, next, id) => {
@@ -34,7 +34,7 @@ export const auth = (req, res, next) => {
 
 router.get('/', async (req, res) => {
     try {
-        const data = await manager.get();
+        const data = await controller.get();
         res.status(200).send({ error: null, data: data });
     } catch (err) {
         res.status(500).send({ error: 'Error interno de ejecución del servidor', data: [] });
@@ -48,7 +48,7 @@ router.post('/', uploader.single('thumbnail'), async (req, res) => { // gestión
 
         if (name != '' && age != '' && email != '') {
             const data = { name: name, age: +age, email: email };
-            const process = await manager.add(data);
+            const process = await controller.add(data);
             res.status(200).send({ error: null, data: process });
         } else {
             res.status(400).send({ error: 'Faltan campos obligatorios', data: [] });
@@ -73,7 +73,7 @@ router.patch('/:id?', auth, async (req, res) => {
             if (email) update.email = email;
             const options = { new: true }; // new: true retorna el documento actualizado
             
-            const process = await manager.update(filter, update, options);
+            const process = await controller.update(filter, update, options);
             if (!process) {
                 res.status(404).send({ error: 'No se encuentra el usuario', data: [] });
             } else {
@@ -95,7 +95,7 @@ router.delete('/:id?', auth, async (req, res) => {
             const filter = { _id: id };
             const options = {};
             
-            const process = await manager.delete(filter, options);
+            const process = await controller.delete(filter, options);
             if (!process) {
                 res.status(404).send({ error: 'No se encuentra el usuario', data: [] });
             } else {
@@ -115,7 +115,7 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ error: 'Faltan campos obligatorios: firstname, lastname, username, password' });
         }
 
-        const process = await manager.register({ firstname, lastname, username, password });
+        const process = await controller.register({ firstname, lastname, username, password });
 
         if (process.success) {
             return res.status(200).json({ error: null, data: process.data });
@@ -136,7 +136,7 @@ router.post('/login', async (req, res) => {
 
 
     if (username != '' && password != '') {
-        const process = await manager.authenticate(username, password);
+        const process = await controller.authenticate(username, password);
         if (process) {
             req.session.userData = { firstname: process.firstname, lastname: process.lastname, admin: true };
 
@@ -186,7 +186,7 @@ router.post('/jwtlogin', async (req, res) => {
     const { username, password } = req.body;
 
     if (username != '' && password != '') {
-        const process = await manager.authenticate(username, password);
+        const process = await controller.authenticate(username, password);
         if (process) {
             const payload = { username: username, role: process.role };
             // Generamos un token válido por 1 hora, y se lo devolvemos al cliente en la respuesta
