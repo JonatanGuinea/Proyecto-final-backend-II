@@ -16,7 +16,7 @@ import viewsRouter from './routes/views.router.js';
 import cookiesRouter from './routes/cookies.router.js';
 import config from './config.js';
 import  initAuthStrategies  from "./auth/passport.config.js";
-import MongoSingleton from './services/mongo.singleton.js';
+import MongoSingleton from './dao/mongo.singleton.js';
 
 
 const app = express();

@@ -1,4 +1,4 @@
-import UserService from "../services/user.service.mongo.js";
+import UserService from "../dao/user.service.mongo.js";
 import {createHash, isValidPassword} from '../utils.js'
 
 const service = new UserService();
