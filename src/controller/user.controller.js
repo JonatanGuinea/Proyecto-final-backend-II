@@ -1,4 +1,5 @@
-import UserService from "../dao/user.service.mongo.js";
+// import UserService from "../dao/user.service.mongo.js";
+import UserService from "../dao/user.service.file.js";
 import {createHash, isValidPassword} from '../utils.js'
 
 const service = new UserService();
@@ -13,7 +14,7 @@ class UserController {
             return await service.get();
         } catch (err) {
             return null;
-        }
+        } 
     }
 
 
@@ -93,10 +94,10 @@ class UserController {
             
             data.password= createHash(data.password)
             // Guardar usuario en la base de datos
-            const newUser = new userModel(data); 
-            await newUser.save();
+            const newUser =service.add(data)
+            
     
-            return { success: true, data: 'Usuario registrado correctamente' };
+            return { success: true, data: `el usuario ${newUser.firstname}, se registró correctamente` };
         } catch (err) {
             console.error('❌ Error al registrar usuario:', err);
             return { success: false, error: 'Error en el servidor' };

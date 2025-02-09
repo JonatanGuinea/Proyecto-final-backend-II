@@ -14,7 +14,6 @@ commandLine
     commandLine.parse()
 
 const clOptions = commandLine.opts()
-console.log(clOptions, 'clOptions');
 
 
 const config = {

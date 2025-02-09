@@ -1,4 +1,4 @@
-import userModel from './models/user.model.js';
+import userModel from './models/user.model.mongo.js';
 import MongoSingleton from './mongo.singleton.js';
 
 

@@ -1,0 +1,32 @@
+[
+  {
+    "firstname": "File",
+    "lastname": "file",
+    "username": "fe@hco.com",
+    "password": "$2b$10$wHrLqsIUW2mWvh1.JeRlsekbpGg9DAZ8RxE.iBT4xzdGImqci.xi."
+  },
+  {
+    "firstname": "cvb",
+    "lastname": "cvb",
+    "username": "cvb@cvb",
+    "password": "$2b$10$9aMchN2M4B7RJWjHAx.4C.4aVv8xyr7fek6XUSkAj.WYlXHO1Snji"
+  },
+  {
+    "firstname": "nuevo",
+    "lastname": "nuevo",
+    "username": "nuevo@nuevo",
+    "password": "$2b$10$tCK.GYePIyubt4AXl57oNeufr1UEZ0sT396tJQYVHgeCMWLd00zVm"
+  },
+  {
+    "firstname": "nuevo",
+    "lastname": "nuevo",
+    "username": "nuevo@nuevo",
+    "password": "$2b$10$VlwIvJ.FJchS/q4q3EudQ.riGbsGykjYv4bnumnlsyK4MRmLLJepC"
+  },
+  {
+    "firstname": "nu",
+    "lastname": "nvo",
+    "username": "nevo@nuevo",
+    "password": "$2b$10$ED7VRsrk6WVKoc5ht6aMaOLMf4bUfGKME05FXenZb8g64AiQcmPJ2"
+  }
+]
