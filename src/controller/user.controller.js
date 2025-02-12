@@ -1,6 +1,7 @@
-// import UserService from "../dao/user.service.mongo.js";
-import UserService from "../dao/user.service.file.js";
+import UserService from "../dao/factory.service.js";
+// import UserService from "../dao/user.service.file.js";
 import {createHash, isValidPassword} from '../utils.js'
+import UserDTO from "../dao/users.dto.js";
 
 const service = new UserService();
 
@@ -29,6 +30,7 @@ class UserController {
     
     add = async (data) => {
         try {
+            const normalizaData =  UserDTO(data)
             return await service.add(data);
         } catch (err) {
             return null;

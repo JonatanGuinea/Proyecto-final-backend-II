@@ -33,6 +33,7 @@ const config = {
     GITHUB_SECRET:process.env.GITHUB_SECRET,
     GITHUB_CALLBACK_URL: process.env.GITHUB_CALLBACK_URL,
 
+    PERSISTENCE: process.env.PERSISTENCE,
 
 
     MONGODB_ID_REGEX: '/^[a-f\d]{24}$/i'

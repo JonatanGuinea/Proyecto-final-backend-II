@@ -14,6 +14,7 @@ import cors from 'cors'
 import usersRouter from './routes/users.router.js';
 import viewsRouter from './routes/views.router.js';
 import cookiesRouter from './routes/cookies.router.js';
+import productsRouter from './routes/products.router.js'
 import config from './config.js';
 import  initAuthStrategies  from "./auth/passport.config.js";
 import MongoSingleton from './dao/mongo.singleton.js';
@@ -51,6 +52,7 @@ app.set('view engine', 'handlebars');
 app.use('/views', viewsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/cookies', cookiesRouter);
+app.use('/api/products', productsRouter)
 app.use('/static', express.static(`${config.DIRNAME}/public`));
 
 // Convertimos el callback del listen en asíncrono y esperamos la conexión a la base de datos

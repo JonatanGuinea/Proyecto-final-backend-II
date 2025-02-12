@@ -1,14 +1,14 @@
-import userModel from './models/user.model.mongo.js';
+import productModel from './models/product.model.js';
 import MongoSingleton from './mongo.singleton.js';
 
 
-class UserService {
+class ProductService {
     constructor() {}
 
     get = async () => {
         try {
             await MongoSingleton.getInstance()
-            return await userModel.find().lean();
+            return await productModel.find().lean();
         } catch (err) {
             return err.message
         }
@@ -18,7 +18,7 @@ class UserService {
     getOne = async (filter) => {
         try {
             await MongoSingleton.getInstance()
-            return await userModel.findOne(filter).lean();
+            return await productModel.findOne(filter).lean();
         } catch (err) {
             return err.message;
         };
@@ -29,7 +29,7 @@ class UserService {
         try {
             await MongoSingleton.getInstance()
 
-            return await(userModel.create(data));
+            return await productModel.create(data);
         } catch (err) {
             return err.message
         }
@@ -39,7 +39,7 @@ class UserService {
         try {
             await MongoSingleton.getInstance()
 
-            return await userModel.findOneAndUpdate(filter, update, options);
+            return await productModel.findOneAndUpdate(filter, update, options);
         } catch (err) {
             return err.message
         }
@@ -49,7 +49,7 @@ class UserService {
         try {
             await MongoSingleton.getInstance()
 
-            return await userModel.findOneAndDelete(filter, options);
+            return await productModel.findOneAndDelete(filter, options);
         } catch (err) {
             return err.message
         }
@@ -58,4 +58,4 @@ class UserService {
 }
 
 
-export default UserService;
+export default ProductService;
