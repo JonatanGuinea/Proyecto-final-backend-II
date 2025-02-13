@@ -10,7 +10,7 @@ import cors from 'cors'
 
 
 
-
+import ordersRouter from './routes/order.router.js'
 import usersRouter from './routes/users.router.js';
 import viewsRouter from './routes/views.router.js';
 import cookiesRouter from './routes/cookies.router.js';
@@ -50,6 +50,7 @@ app.set('views', `${config.DIRNAME}/views`);
 app.set('view engine', 'handlebars');
 
 app.use('/views', viewsRouter);
+app.use('/api/orders', ordersRouter)
 app.use('/api/users', usersRouter);
 app.use('/api/cookies', cookiesRouter);
 app.use('/api/products', productsRouter)
