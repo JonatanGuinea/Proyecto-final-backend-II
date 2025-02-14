@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {auth} from './users.router.js'
+import userModel from '../dao/models/user.model.mongo.js';
 
 
 
@@ -40,14 +41,23 @@ router.get('/login', (req, res) => {
     
     res.status(200).render('login', data);
 });
-router.get('/profile', auth,(req, res) => {
-    // const data = req.session.userData;
 
-    const data = req.session.passport.user;
-    
-    
-    res.status(200).render('profile', data);
+router.get('/profile', auth, async (req, res) => {
+    try {
+        const userId = req.session.passport.user;
+        const user = await userModel.findById(userId).lean(); // `lean()` convierte el resultado en un objeto plano
+
+        if (!user) {
+            return res.status(404).send("Usuario no encontrado");
+        }
+
+        res.status(200).render('profile', { user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error interno del servidor");
+    }
 });
+
 
 
 export default router;

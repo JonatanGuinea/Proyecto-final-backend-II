@@ -29,7 +29,7 @@ class UserService {
         try {
             await MongoSingleton.getInstance()
 
-            return await(userModel.create(data));
+            return await userModel.create(data);
         } catch (err) {
             return err.message
         }
@@ -38,8 +38,10 @@ class UserService {
     update = async (filter, update, options) => {
         try {
             await MongoSingleton.getInstance()
-
-            return await userModel.findOneAndUpdate(filter, update, options);
+            const response = await userModel.findOneAndUpdate(filter, update, options);
+            console.log('user service : ' + response);
+            
+            return response
         } catch (err) {
             return err.message
         }

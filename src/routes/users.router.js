@@ -15,6 +15,7 @@ const router = Router();
 const controller = new UserController();
 
 
+
 router.param('id', async (req, res, next, id) => {
     // Aprovechamos la expresión regular MONGODB_ID_REGEX,
     // para ver si el id que llega por req.params contiene ese formato
@@ -22,15 +23,17 @@ router.param('id', async (req, res, next, id) => {
     next();
 })
 
-
 export const auth = (req, res, next) => {
+    const isAdmin = req.session?.userData?.admin;
+    const isAuthenticated = req.session?.passport?.user;
 
-    if ((req.session?.userData && req.session?.userData.admin) || req.session?.passport.user) {
+    if (isAdmin || isAuthenticated) {
         next();
     } else {
         res.status(401).send({ error: 'No autorizado', data: [] });
     }
-}
+};
+
 
 router.get('/', async (req, res) => {
     try {
@@ -43,47 +46,49 @@ router.get('/', async (req, res) => {
 
 // router.post('/', auth, uploader.array('thumbnail', 3), (req, res) => { // gestión de múltiples archivos
 router.post('/', uploader.single('thumbnail'), async (req, res) => { // gestión de archivo único
-    try {
-        const { name, age, email } = req.body;
-
-        if (name != '' && age != '' && email != '') {
-            const data = { name: name, age: +age, email: email };
-            const process = await controller.add(data);
-            res.status(200).send({ error: null, data: process });
-        } else {
-            res.status(400).send({ error: 'Faltan campos obligatorios', data: [] });
-        }
-    } catch (err) {
-        res.status(500).send({ error: 'Error interno de ejecución del servidor', data: [] });
-    }
-});
-
-router.patch('/:id?', auth, async (req, res) => {
-    try {
-        const id = req.params.id;
-        
-        if (!id) {
-            res.status(400).send({ error: 'Se requiere parámetro id', data: null });
-        } else {
-            const { name, age, email } = req.body;
-            const filter = { _id: id };
-            const update = {};
-            if (name) update.name = name;
-            if (age) update.age = +age;
-            if (email) update.email = email;
-            const options = { new: true }; // new: true retorna el documento actualizado
-            
-            const process = await controller.update(filter, update, options);
-            if (!process) {
-                res.status(404).send({ error: 'No se encuentra el usuario', data: [] });
-            } else {
+        try {
+            const { firstname, lastname, username, password } = req.body;
+    
+            if (firstname != '' && lastname != '' && username != '' && password != '') {
+                const data = { firstname, lastname, username, password };
+                const process = await controller.add(data);
                 res.status(200).send({ error: null, data: process });
+            } else {
+                res.status(400).send({ error: 'Faltan campos obligatorios', data: [] });
             }
+        } catch (err) {
+            res.status(500).send({ error: 'Error interno de ejecución del servidor', data: [] });
         }
-    } catch (err) {
-        res.status(500).send({ error: 'Error interno de ejecución del servidor', data: [] });
-    }
-});
+    });
+
+    router.patch('/:id?', async (req, res) => {
+        try {
+            const id = req.params.id;
+            
+            if (!id) {
+                res.status(400).send({ error: 'Se requiere parámetro id', data: null });
+            } else {
+                const { firstname, lastname, username, password } = req.body;
+    
+                const filter = { _id: id };
+                const update = {};
+                if (firstname) update.firstname = firstname;
+                if (lastname) update.lastname = lastname;
+                if (username) update.username = username;
+                if (password) update.password = password;
+                const options = { new: true }; // new: true retorna el documento actualizado
+                
+                const process = await controller.update(filter, update, options);
+                if (!process) {
+                    res.status(404).send({ error: 'No se encuentra el usuario', data: [] });
+                } else {
+                    res.status(200).send({ error: null, data: process });
+                }
+            }
+        } catch (err) {
+            res.status(500).send({ error: 'Error interno de ejecución del servidor', data: [] });
+        }
+    });
 
 router.delete('/:id?', auth, async (req, res) => {
     try {
@@ -169,17 +174,25 @@ router.post('/pplogin', passport.authenticate('pplogin', {}), async (req, res) =
 
 
 router.get('/ghlogin', passport.authenticate('ghlogin', { scope: ['user:email'] }), async (req, res) => {});
-
 router.get('/ghcallback', passport.authenticate('ghlogin', { failureRedirect: '/views/login' }), async (req, res) => {
-    
+    console.log('✅ Usuario autenticado con GitHub:', req.user); // Agrega este log para ver si Passport autenticó bien
+
+    if (!req.user) {
+        return res.redirect('/views/login'); // Si no hay usuario, redirige
+    }
+
+    req.session.userData = req.user;
 
     req.session.save(err => {
-        if (err) return res.status(500).send({ error: 'Error al almacenar datos de sesión', data: [] });
+        if (err) {
+            console.error('❌ Error al guardar la sesión:', err);
+            return res.status(500).send({ error: 'Error al almacenar datos de sesión', data: [] });
+        }
 
-        // res.status(200).send({ error: null, data: 'Usuario autenticado, sesión iniciada!' });
         res.redirect('/views/profile');
     });
 });
+
 
 
 router.post('/jwtlogin', async (req, res) => {

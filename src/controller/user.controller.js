@@ -6,7 +6,6 @@ import UserDTO from "../dao/users.dto.js";
 const service = new UserService();
 
 
-
 class UserController {
     constructor() {}
 
@@ -30,8 +29,8 @@ class UserController {
     
     add = async (data) => {
         try {
-            const normalizaData =  UserDTO(data)
-            return await service.add(data);
+            const normalizaData = await new UserDTO(data)
+            return await service.add(normalizaData);
         } catch (err) {
             return null;
         }
@@ -39,7 +38,10 @@ class UserController {
 
     update = async (filter, update, options) => {
         try {
-            return await service.update(filter, update, options);
+            const response = await service.update(filter, update, options);
+            console.log('user controller ' + response);
+            
+            return response
         } catch (err) {
             return null;
         }
@@ -93,10 +95,10 @@ class UserController {
             if (existingUser) {
                 return { success: false, error: 'El email o username ya están en uso' };
             }
-            
-            data.password= createHash(data.password)
+            const normalizaData = new UserDTO(data)
+            // data.password= createHash(data.password)
             // Guardar usuario en la base de datos
-            const newUser =service.add(data)
+            const newUser =await service.add(normalizaData)
             
     
             return { success: true, data: `el usuario ${newUser.firstname}, se registró correctamente` };

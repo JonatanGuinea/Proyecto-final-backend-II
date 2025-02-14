@@ -48,46 +48,52 @@ const initAuthStrategies = () => {
             callbackURL: config.GITHUB_CALLBACK_URL,
             scope: ['user:email']
         },
-        async (req, accessToken, refreshToken, profile, done) => {
+        async (accessToken, refreshToken, profile, done) => {
             try {
-                const email = profile._json?.email || null;
-                const username = profile.username || profile.id; // Usar el ID de GitHub como fallback
+                console.log('🔄 Autenticando con GitHub:', profile); // Agrega este log
     
-                // Si no hay email, usa el username o el ID
-                if (email || username) {
-                    const foundUser = await controller.getOne({ username: email || username });
+                let email = profile.emails?.[0]?.value || profile._json?.email || null;
+                let username = profile.username || profile.id;
     
-                    if (!foundUser) {
-                        const user = {
-                            firstname: profile._json.name.split(' ')[0],
-                            lastname: profile._json.name.split(' ')[1],
-                            username: email || username,
-                            password: 'none'
-                        };
-    
-                        const process = await controller.add(user);
-    
-                        return done(null, process);
-                    } else {
-                        return done(null, foundUser);
-                    }
-                } else {
-                    return done(new Error('Faltan datos de perfil'), null);
+                if (!email && !username) {
+                    console.error('❌ No se pudo obtener email ni username');
+                    return done(null, false, { message: 'No se pudo obtener email ni username' });
                 }
+    
+                let user = await controller.getOne({ username: email || username });
+    
+                if (!user) {
+                    user = await controller.add({
+                        firstname: profile.displayName?.split(' ')[0] || 'GitHub',
+                        lastname: profile.displayName?.split(' ')[1] || 'User',
+                        username: email || username,
+                        password: 'none'
+                    });
+                }
+    
+                return done(null, user);
             } catch (err) {
-                return done(err.message, false);
+                console.error('❌ Error en estrategia GitHub:', err);
+                return done(err, false);
             }
         }
     ));
     
+    
 
     passport.serializeUser((user, done) => {
-        done(null, user);
+        done(null, user._id);  // Solo almacena el ID del usuario en la sesión
     });
-        
-    passport.deserializeUser((user, done) => {
-        done(null, user);
+    
+    passport.deserializeUser(async (id, done) => {
+        try {
+            const user = await controller.getOne({ _id: id });  // Busca el usuario en la DB
+            done(null, user);
+        } catch (err) {
+            done(err, null);
+        }
     });
+    
 };
 
 export default initAuthStrategies;
