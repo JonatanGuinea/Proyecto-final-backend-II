@@ -1,7 +1,8 @@
 import {fork} from 'child_process'
 import { Router } from 'express';
 import passport from 'passport';
-import initAuthStrategies from '../auth/passport.config.js';
+// import initAuthStrategies from '../auth/passport.config.js';
+import nodemailer from 'nodemailer';
 
 import { uploader } from '../uploader.js';
 import UserController from '../controller/user.controller.js';
@@ -14,6 +15,15 @@ import config from '../config.js'
 const router = Router();
 const controller = new UserController();
 
+const transport = nodemailer.createTransport({
+    service :'gmail',
+    port: 587,
+    auth:{
+        user:config.GMAIL_APP_USER,
+        pass: config.GMAIL_APP_PASS   
+    
+    }
+})
 
 
 router.param('id', async (req, res, next, id) => {
@@ -262,6 +272,7 @@ router.get('/complexok', async (req, res) => {
 router.get('*',async (req, res)=>{
     res.status(404).send({ error: 'No se encuentra la ruta especificada' , data:[] })
 })
+
 
 
 

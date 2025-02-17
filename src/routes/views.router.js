@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {auth} from './users.router.js'
 import userModel from '../dao/models/user.model.mongo.js';
+import productModel from '../dao/models/product.model.js'
 
 
 
@@ -36,6 +37,12 @@ router.get('/cookies', (req, res) => {
     res.status(200).render('cookies', data);
 });
 router.get('/login', (req, res) => {
+    const isAdmin = req.session?.userData?.admin;
+    const isAuthenticated = req.session?.passport?.user;
+
+    if (isAdmin || isAuthenticated) {
+        res.redirect('/views/profile')
+    }
     const data = {
     };
     
@@ -56,6 +63,10 @@ router.get('/profile', auth, async (req, res) => {
         console.error(error);
         res.status(500).send("Error interno del servidor");
     }
+});
+router.get('/products', async (req, res) => {
+    const products = await productModel.find().lean()
+    res.render('products', {data:products})
 });
 
 

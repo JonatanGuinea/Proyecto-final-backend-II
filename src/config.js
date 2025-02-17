@@ -3,7 +3,9 @@ import dotenv from 'dotenv'
 import { Command } from 'commander';
 
 //en cas de no usa --env-files=.env, necesitaremos la siguiente límnea de comandos que ejecuta el dotenv para leer las variables de entorno establecidas
-dotenv.config({path: '.env'})
+dotenv.config({path: '.env',
+    override:true
+})
 
 const commandLine = new Command()
 
@@ -33,11 +35,18 @@ const config = {
     GITHUB_SECRET:process.env.GITHUB_SECRET,
     GITHUB_CALLBACK_URL: process.env.GITHUB_CALLBACK_URL,
 
+
     PERSISTENCE: process.env.PERSISTENCE,
 
 
-    MONGODB_ID_REGEX: '/^[a-f\d]{24}$/i'
+    
+    
+    MONGODB_ID_REGEX: '/^[a-f\d]{24}$/i',
+
+    GMAIL_APP_USER:process.env.GMAIL_APP_USER,
+    GMAIL_APP_PASS: process.env.GMAIL_APP_PASS
 };
+
 
 
 
