@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import { authorization } from './users.router.js';
 import ProductController from '../controller/products.controller.js';
 import config from '../config.js';
 
@@ -25,7 +26,7 @@ router.get('/:pid', async (req, res)=>{
 
 
 // 🔹 POST: Crear un nuevo producto
-router.post("/", async (req, res) => {
+router.post("/", authorization('ADMIN'), async (req, res) => {
     try {
         const newProduct = await controller.add(req.body);
         res.status(201).json({ message: "Producto creado", product: newProduct });
@@ -35,7 +36,7 @@ router.post("/", async (req, res) => {
 });
 
 // 🔹 PUT: Actualizar un producto por ID
-router.put("/:id", async (req, res) => {
+router.put("/:id", authorization('ADMIN'), async (req, res) => {
     try {
         const { _id } = req.params;
         const updatedProduct = await controller.update(_id, req.body, { new: true });
@@ -51,7 +52,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // 🔹 DELETE: Eliminar un producto por ID
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authorization('ADMIN'), async (req, res) => {
     try {
         const { _id } = req.params;
         const deletedProduct = await controller.delete(_id);
