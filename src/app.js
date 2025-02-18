@@ -9,7 +9,6 @@ import passport from 'passport';
 import cors from 'cors'
 
 
-
 import ordersRouter from './routes/order.router.js'
 import usersRouter from './routes/users.router.js';
 import viewsRouter from './routes/views.router.js';
@@ -62,6 +61,7 @@ const httpServer = app.listen(config.PORT, async() => {
     MongoSingleton.getInstance()
     console.log(`Server activo en puerto ${config.PORT}, conectado a bbdd local`);
     console.log(process.platform);
+
     
     
     
