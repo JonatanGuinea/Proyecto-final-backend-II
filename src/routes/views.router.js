@@ -16,6 +16,12 @@ router.get('/', (req, res) => {
 });
 
 router.get('/register', (req, res) => {
+    const isAdmin = req.session?.userData?.admin;
+    const isAuthenticated = req.session?.passport?.user;
+
+    if (isAdmin || isAuthenticated) {
+        res.redirect('/views/current')
+    }
     const data = {
     };
     
@@ -41,7 +47,7 @@ router.get('/login', (req, res) => {
     const isAuthenticated = req.session?.passport?.user;
 
     if (isAdmin || isAuthenticated) {
-        res.redirect('/views/profile')
+        res.redirect('/views/current')
     }
     const data = {
     };
@@ -49,7 +55,7 @@ router.get('/login', (req, res) => {
     res.status(200).render('login', data);
 });
 
-router.get('/profile', auth, async (req, res) => {
+router.get('/current', auth, async (req, res) => {
     try {
         const userId = req.session.passport.user;
         const user = await userModel.findById(userId).lean(); // `lean()` convierte el resultado en un objeto plano
@@ -58,12 +64,14 @@ router.get('/profile', auth, async (req, res) => {
             return res.status(404).send("Usuario no encontrado");
         }
 
-        res.status(200).render('profile', { user });
+        res.status(200).render('current', { user });
     } catch (error) {
         console.error(error);
         res.status(500).send("Error interno del servidor");
     }
 });
+
+
 router.get('/products', async (req, res) => {
     const products = await productModel.find().lean()
     res.render('products', {data:products})

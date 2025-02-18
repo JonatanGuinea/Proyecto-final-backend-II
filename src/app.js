@@ -60,7 +60,6 @@ const httpServer = app.listen(config.PORT, async() => {
     //await mongoose.connect(config.MONGODB_URI);
     MongoSingleton.getInstance()
     console.log(`Server activo en puerto ${config.PORT}, conectado a bbdd local`);
-    console.log(process.platform);
 
     
     

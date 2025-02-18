@@ -178,7 +178,7 @@ router.post('/login', async (req, res) => {
                 if (err) return res.status(500).send({ error: 'Error al almacenar datos de sesión', data: [] });
 
                 // Podemos tanto retornar respuesta como es habitual, o redireccionar a otra plantilla
-                res.redirect('/views/profile');
+                res.redirect('/views/current');
             });
         } else {
             res.status(401).send({ error: 'Usuario o clave no válidos', data: [] });
@@ -196,7 +196,7 @@ router.post('/pplogin', passport.authenticate('pplogin', {}), async (req, res) =
         if (err) return res.status(500).send({ error: 'Error al almacenar datos de sesión', data: [] });
 
         // res.status(200).send({ error: null, data: 'Usuario autenticado, sesión iniciada!' });
-        res.redirect('/views/profile');
+        res.redirect('/views/current');
     });
 });
 
@@ -217,7 +217,7 @@ router.get('/ghcallback', passport.authenticate('ghlogin', { failureRedirect: '/
             return res.status(500).send({ error: 'Error al almacenar datos de sesión', data: [] });
         }
 
-        res.redirect('/views/profile');
+        res.redirect('/views/current');
     });
 });
 
