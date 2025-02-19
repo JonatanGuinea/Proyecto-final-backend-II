@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { authorization } from './users.router.js';
+import { authorization } from '../middlewares/middlewares.js';
 import ProductController from '../controller/products.controller.js';
 import config from '../config.js';
 

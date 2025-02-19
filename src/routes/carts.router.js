@@ -1,16 +1,95 @@
 import { Router } from 'express';
 import CartController from '../controller/cart.controller.js';
 import ProductController from '../controller/products.controller.js';
-import Ticket from '../dao/models/ticketModel.js';
+import ticketModel from '../dao/models/ticketModel.js';
+import {auth} from '../middlewares/middlewares.js'
+
 
 const router = Router();
 const cartController = new CartController();
 const productController = new ProductController();
 
+router.get('/', auth, async (req, res) => {
+    try {
+        // Esperamos a que se obtenga la lista de carritos
+        const carts = await cartController.get();
+
+        // Mostramos la información del usuario en sesión (si la necesitas para depurar)
+        console.log(req.session.userData);
+
+        // Enviamos la respuesta con los carritos
+        res.status(200).send({ error: null, data: carts });
+    } catch (error) {
+        // Si hay un error, lo manejamos adecuadamente
+        console.error(error);
+        res.status(500).send({ error: 'Error interno al obtener los carritos', data: [] });
+    }
+});
+
+router.get('/:cid', async (req, res)=>{
+    const cartId = req.params.cid;
+    const cart = await cartController.getOne({_id:cartId});
+    res.status(200).send({ error: null , data: [cart]})
+} )
+
+
+
+router.post('/add', auth, async (req, res) => {
+    try {
+
+        const { productId, stock} = req.body;
+
+        if (!productId || stock <= 0) {
+            return res.status(400).json({ error: 'Datos inválidos' });
+        }
+
+        // Verificar si el producto existe
+        const product = await productController.getOne({ _id: productId });
+        if (!product) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+
+        // Buscar el carrito del usuario
+        let cart = await cartController.getOne({ _id: req.session.userData });
+        
+
+        // Si no tiene un carrito, crearlo
+        if (!cart) {
+            cart = await cartController.create({ userId, products: [] });
+        }
+console.log(req.user);
+
+        // Verificar si el producto ya está en el carrito
+        // const productIndex = cart.products.findIndex(p => p.productId.toString() === productId);
+
+        // if (productIndex !== -1) {
+        //     // Si el producto ya está en el carrito, aumentar la cantidad
+        //     cart.products[productIndex].quantity += quantity;
+        // } else {
+        //     // Si no está, agregarlo al carrito
+        //     cart.products.push({ productId, quantity });
+        // }
+
+        // // Guardar el carrito actualizado
+        // await cartController.update(cart._id, { products: cart.products });
+
+        res.status(200).json({ message: 'Producto agregado al carrito', cart });
+    } catch (error) {
+        console.error('Error al agregar producto al carrito:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
 router.post('/:cid/purchase', async (req, res) => {
     try {
         const { cid } = req.params;
-        const cart = await cartController.getById(cid);
+
+        // Verificar usuario autenticado
+        if (!req.user || !req.user.email) {
+            return res.status(400).send({ error: 'Usuario no autenticado' });
+        }
+
+        const cart = await cartController.getOne({ _id: cid });
         if (!cart) return res.status(404).send({ error: 'Carrito no encontrado' });
 
         let totalAmount = 0;
@@ -18,7 +97,8 @@ router.post('/:cid/purchase', async (req, res) => {
         let purchasedProducts = [];
 
         for (const item of cart.products) {
-            const product = await productController.getById(item.productId);
+            const product = await productController.getOne({ _id: item.productId });
+
             if (!product) {
                 unprocessedProducts.push(item.productId);
                 continue;
@@ -26,7 +106,8 @@ router.post('/:cid/purchase', async (req, res) => {
 
             if (product.stock >= item.quantity) {
                 product.stock -= item.quantity;
-                await productController.updateStock(product._id, product.stock);
+                await productController.update(product._id, { stock: product.stock });
+
                 totalAmount += product.price * item.quantity;
                 purchasedProducts.push(item.productId);
             } else {
@@ -34,20 +115,23 @@ router.post('/:cid/purchase', async (req, res) => {
             }
         }
 
+        let ticket = null;
         if (purchasedProducts.length > 0) {
-            const ticket = await Ticket.create({
+            ticket = await ticketModel.create({
                 amount: totalAmount,
                 purchaser: req.user.email
             });
         }
 
-        await cartController.updateProducts(cid, unprocessedProducts);
-        
+        await cartController.update(cid, unprocessedProducts);
+
         res.status(200).send({
             message: 'Compra procesada',
+            ticket,
             unprocessedProducts
         });
     } catch (error) {
+        console.error('Error en la compra:', error);
         res.status(500).send({ error: 'Error interno del servidor' });
     }
 });

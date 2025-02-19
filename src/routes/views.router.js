@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import {auth} from './users.router.js'
+import {auth} from '../middlewares/middlewares.js'
 import userModel from '../dao/models/user.model.mongo.js';
 import productModel from '../dao/models/product.model.js'
 
@@ -61,8 +61,10 @@ router.get('/current', auth, async (req, res) => {
         const user = await userModel.findById(userId).lean(); // `lean()` convierte el resultado en un objeto plano
 
         if (!user) {
-            return res.status(404).send("Usuario no encontrado");
+            res.redirect('/views/login')
         }
+        console.log(req.session.passport);
+        
 
         res.status(200).render('current', { user });
     } catch (error) {

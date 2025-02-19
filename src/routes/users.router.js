@@ -4,12 +4,14 @@ import passport from 'passport';
 // import initAuthStrategies from '../auth/passport.config.js';
 import nodemailer from 'nodemailer';
 
+
+
 import { uploader } from '../uploader.js';
 import UserController from '../controller/user.controller.js';
-
 import {createToken, verifyToken, handlePolicies} from '../utils.js'
-
 import config from '../config.js'
+import {auth} from '../middlewares/middlewares.js'
+
 
 
 const router = Router();
@@ -33,31 +35,6 @@ router.param('id', async (req, res, next, id) => {
     next();
 })
 
-export const auth = (req, res, next) => {
-    const isAdmin = req.session?.userData?.admin;
-    const isAuthenticated = req.session?.passport?.user;
-
-    if (isAdmin || isAuthenticated) {
-        next();
-    } else {
-        res.status(401).send({ error: 'No autorizado', data: [] });
-    }
-};
-
-export const authorization = (role) => {
-    return (req, res, next) => {
-        if (!req.session?.passport?.user) {
-
-            return res.status(401).send({ error: 'No autenticado' });
-        }
-        
-        if (req.session.userData.role !== role) {
-            return res.status(403).send({ error: 'No autorizado' });
-        }
-        
-        next();
-    };
-};
 
 
 
@@ -67,6 +44,7 @@ export const authorization = (role) => {
 router.get('/', async (req, res) => {
     try {
         const data = await controller.get();
+        
         res.status(200).send({ error: null, data: data });
     } catch (err) {
         res.status(500).send({ error: 'Error interno de ejecución del servidor', data: [] });
@@ -204,13 +182,12 @@ router.post('/pplogin', passport.authenticate('pplogin', {}), async (req, res) =
 
 router.get('/ghlogin', passport.authenticate('ghlogin', { scope: ['user:email'] }), async (req, res) => {});
 router.get('/ghcallback', passport.authenticate('ghlogin', { failureRedirect: '/views/login' }), async (req, res) => {
-    console.log('✅ Usuario autenticado con GitHub:', req.user); // Agrega este log para ver si Passport autenticó bien
-
     if (!req.user) {
         return res.redirect('/views/login'); // Si no hay usuario, redirige
     }
 
     req.session.userData = req.user;
+    
 
     req.session.save(err => {
         if (err) {
@@ -220,6 +197,7 @@ router.get('/ghcallback', passport.authenticate('ghlogin', { failureRedirect: '/
 
         res.redirect('/views/current');
     });
+    
 });
 
 
