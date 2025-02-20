@@ -52,12 +52,7 @@ app.use(cors({origin:'*', credentials:true}))
 initAuthStrategies()
 app.use(passport.initialize())
 app.use(passport.session())
-app.use((req, res, next) => {
-    console.log("🔍 Middleware global revisando sesión:");
-    console.log("🔍 req.session:", req.session);
-    console.log("🔍 req.user:", req.user);
-    next();
-});
+
 
 app.engine('handlebars', handlebars.engine());
 app.set('views', `${config.DIRNAME}/views`);

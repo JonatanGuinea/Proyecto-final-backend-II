@@ -15,7 +15,6 @@ router.get('/', auth, async (req, res) => {
         const carts = await cartController.get();
 
         // Mostramos la información del usuario en sesión (si la necesitas para depurar)
-        console.log(req.session.userData);
 
         // Enviamos la respuesta con los carritos
         res.status(200).send({ error: null, data: carts });
@@ -135,5 +134,31 @@ router.post('/:cid/purchase', async (req, res) => {
         res.status(500).send({ error: 'Error interno del servidor' });
     }
 });
+
+
+router.post('/:cid/:pid/:quantity', async (req, res)=>{
+    const {cid, pid,quantity} = req.params
+    const cart = await cartController.getOneById({_id:cid})
+    const product = await productController.getOneById({_id:pid})
+
+    if (!cart) {
+        return res.status(404).json({ message: "Carrito no encontrado" });
+    }
+
+    if (!product) {
+        return res.status(404).json({ message: "Producto no encontrado" });
+    }
+
+    // Agregar solo el ID del producto al carrito
+    if(!cart.products._id){
+        cart.products.push({ productId: product._id, quantity: 5 });
+    }else {
+        
+        res.status(200).send({ error: null , data: []})
+
+    }
+    return await cart.save()
+    
+})
 
 export default router;

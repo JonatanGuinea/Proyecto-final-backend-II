@@ -50,7 +50,6 @@ const initAuthStrategies = () => {
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
-                console.log('🔄 Autenticando con GitHub:', profile); // Agrega este log
     
                 let email = profile.emails?.[0]?.value || profile._json?.email || null;
                 let username = profile.username || profile.id;
@@ -90,7 +89,7 @@ const initAuthStrategies = () => {
             const user = await controller.getOne({ _id: id });  // Busca el usuario en la DB
             done(null, user);
         } catch (err) {
-            done(err, null);
+            done(err, 'error en deserializer');
         }
     });
     

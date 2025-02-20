@@ -10,6 +10,8 @@ const controller = new ProductController();
 router.get('/', async (req, res) => {
     try {
         const data = await controller.get();
+        console.log(req.body);
+        
         res.status(200).send({ error: null, data: data });
     } catch (err) {
         res.status(500).send({ error: 'Error interno de ejecución del servidor', data: [] });

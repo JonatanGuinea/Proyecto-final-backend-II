@@ -23,6 +23,13 @@ class ProductsController {
             return err.message;
         };
     };
+    getOneById = async (filter) => {
+        try {
+            return await service.getOneById(filter);
+        } catch (err) {
+            return err.message;
+        };
+    };
 
     
     add = async (data) => {

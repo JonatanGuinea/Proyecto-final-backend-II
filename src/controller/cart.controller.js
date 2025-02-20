@@ -15,7 +15,14 @@ class CartController {
 
     getOne = async (filter) => {
         try {
-            return await service.get(filter);
+            return await service.getOne(filter);
+        } catch (err) {
+            return err.message;
+        };
+    };
+    getOneById = async (filter) => {
+        try {
+            return await service.getOneById(filter);
         } catch (err) {
             return err.message;
         };

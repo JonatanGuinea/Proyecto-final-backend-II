@@ -23,6 +23,14 @@ class ProductService {
             return err.message;
         };
     };
+    getOneById = async (filter) => {
+        try {
+            await MongoSingleton.getInstance()
+            return await productModel.getOneById(filter)
+        } catch (err) {
+            return err.message;
+        };
+    };
 
     
     add = async (data) => {

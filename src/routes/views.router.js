@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {auth} from '../middlewares/middlewares.js'
 import userModel from '../dao/models/user.model.mongo.js';
 import productModel from '../dao/models/product.model.js'
-
+import currentDTO from '../dao/current.dto.js'
 
 
 const router = Router();
@@ -58,15 +58,17 @@ router.get('/login', (req, res) => {
 router.get('/current', auth, async (req, res) => {
     try {
         const userId = req.session.passport.user;
-        const user = await userModel.findById(userId).lean(); // `lean()` convierte el resultado en un objeto plano
+        const user = await userModel.findById(userId).lean(); 
+        const userFiltered = new currentDTO(user)
 
         if (!user) {
             res.redirect('/views/login')
         }
-        console.log(req.session.passport);
+        
+        console.log(userFiltered);
         
 
-        res.status(200).render('current', { user });
+        res.status(200).render('current', { user: userFiltered });
     } catch (error) {
         console.error(error);
         res.status(500).send("Error interno del servidor");
@@ -76,6 +78,8 @@ router.get('/current', auth, async (req, res) => {
 
 router.get('/products', async (req, res) => {
     const products = await productModel.find().lean()
+
+    
     res.render('products', {data:products})
 });
 

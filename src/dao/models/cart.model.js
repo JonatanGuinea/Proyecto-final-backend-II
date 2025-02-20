@@ -5,7 +5,7 @@ mongoose.pluralize(null);
 const collection = 'carts';
 
 const schema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'users' },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     products: [{
         productId: { type: mongoose.Schema.Types.ObjectId, ref: 'products' },
         quantity: { type: Number, required: true, min: 1 }

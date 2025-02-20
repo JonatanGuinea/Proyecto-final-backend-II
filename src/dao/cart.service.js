@@ -18,7 +18,15 @@ class CartService {
     getOne = async (filter) => {
         try {
             await MongoSingleton.getInstance()
-            return await cartModel.findOne(filter).lean();
+            return await cartModel.findOne(filter)
+        } catch (err) {
+            return err.message;
+        };
+    };
+    getOneById = async (filter) => {
+        try {
+            await MongoSingleton.getInstance()
+            return await cartModel.findById(filter)
         } catch (err) {
             return err.message;
         };
