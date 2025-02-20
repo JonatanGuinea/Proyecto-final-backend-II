@@ -26,7 +26,7 @@ class ProductService {
     getOneById = async (filter) => {
         try {
             await MongoSingleton.getInstance()
-            return await productModel.getOneById(filter)
+            return await productModel.findById(filter)
         } catch (err) {
             return err.message;
         };
