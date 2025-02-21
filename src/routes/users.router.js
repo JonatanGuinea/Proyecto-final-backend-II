@@ -2,7 +2,7 @@ import {fork} from 'child_process'
 import { Router } from 'express';
 import passport from 'passport';
 // import initAuthStrategies from '../auth/passport.config.js';
-import nodemailer from 'nodemailer';
+
 
 
 
@@ -11,21 +11,11 @@ import UserController from '../controller/user.controller.js';
 import {createToken, verifyToken, handlePolicies} from '../utils.js'
 import config from '../config.js'
 import {auth} from '../middlewares/middlewares.js'
-
+import { notifySuccessRegistration } from '../mailer.js';
 
 
 const router = Router();
 const controller = new UserController();
-
-const transport = nodemailer.createTransport({
-    service :'gmail',
-    port: 587,
-    auth:{
-        user:config.GMAIL_APP_USER,
-        pass: config.GMAIL_APP_PASS   
-    
-    }
-})
 
 
 router.param('id', async (req, res, next, id) => {
@@ -34,10 +24,6 @@ router.param('id', async (req, res, next, id) => {
     if (!config.MONGODB_ID_REGEX.test(req.params.id)) return res.status(400).send({ error: 'Formato de Id tipo mongoDB no válido', data: [] });
     next();
 })
-
-
-
-
 
 
 
@@ -66,9 +52,9 @@ router.post('/', uploader.single('thumbnail'), async (req, res) => { // gestión
         } catch (err) {
             res.status(500).send({ error: 'Error interno de ejecución del servidor', data: [] });
         }
-    });
+});
 
-    router.patch('/:id?', async (req, res) => {
+router.patch('/:id?', async (req, res) => {
         try {
             const id = req.params.id;
             
@@ -95,7 +81,7 @@ router.post('/', uploader.single('thumbnail'), async (req, res) => { // gestión
         } catch (err) {
             res.status(500).send({ error: 'Error interno de ejecución del servidor', data: [] });
         }
-    });
+});
 
 router.delete('/:id?', auth, async (req, res) => {
     try {
@@ -130,6 +116,7 @@ router.post('/register', async (req, res) => {
         const process = await controller.register({ firstname, lastname, username, password });
 
         if (process.success) {
+            notifySuccessRegistration(username)
             return res.status(200).json({ error: null, data: process.data });
         } else {
             return res.status(400).json({ error: process.error });
@@ -139,9 +126,6 @@ router.post('/register', async (req, res) => {
         return res.status(500).json({ error: 'Error en el servidor' });
     }
 });
-
-
-
 
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -179,7 +163,6 @@ router.post('/pplogin', passport.authenticate('pplogin', {}), async (req, res) =
     });
 });
 
-
 router.get('/ghlogin', passport.authenticate('ghlogin', { scope: ['user:email'] }), async (req, res) => {});
 router.get('/ghcallback', passport.authenticate('ghlogin', { failureRedirect: '/views/login' }), async (req, res) => {
     if (!req.user) {
@@ -200,8 +183,6 @@ router.get('/ghcallback', passport.authenticate('ghlogin', { failureRedirect: '/
     
 });
 
-
-
 router.post('/jwtlogin', async (req, res) => {
     const { username, password } = req.body;
 
@@ -220,7 +201,6 @@ router.post('/jwtlogin', async (req, res) => {
     }
 });
 
-
 router.get('/logout', (req, res) => {
     req.session.destroy(err => {
         if (err) return res.status(500).send({ error: 'Error al cerrar sesión', data: [] });
@@ -234,13 +214,9 @@ router.get('/private', auth, (req, res) => {
     res.status(200).send({ error: null, data: 'Este contenido solo es visible por usuarios autenticados' });
 });
 
-
 router.get('/private2', verifyToken, handlePolicies(['ADMIN', 'PREMIUM']), (req, res) => {
     res.status(200).send({ error: null, data: 'Este contenido solo es visible por usuarios autenticados' });
 });
-
-
-
 
 router.get('/complexok', async (req, res) => {
     const child = fork('src/complex.js');
@@ -264,7 +240,6 @@ router.get('/complexok', async (req, res) => {
         console.log(`Proceso hijo terminado con código ${code}`);
     });
 });
-
 
 router.get('*',async (req, res)=>{
     res.status(404).send({ error: 'No se encuentra la ruta especificada' , data:[] })

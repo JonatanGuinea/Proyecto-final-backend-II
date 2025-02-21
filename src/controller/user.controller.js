@@ -2,7 +2,7 @@ import UserService from "../dao/factory.service.js";
 // import UserService from "../dao/user.service.file.js";
 import {createHash, isValidPassword} from '../utils.js'
 import UserDTO from "../dao/users.dto.js";
-
+import userModel from "../dao/models/user.model.mongo.js";
 const service = new UserService();
 
 
@@ -90,7 +90,7 @@ class UserController {
             }
     
             // Verificar si ya existe un usuario con el mismo username
-            const existingUser = await service.getOne( {username: data.username} );
+            const existingUser = await userModel.findOne( {username: data.username} );
     
             if (existingUser) {
                 return { success: false, error: 'El email o username ya están en uso' };
@@ -98,7 +98,7 @@ class UserController {
             const normalizaData = new UserDTO(data)
             // data.password= createHash(data.password)
             // Guardar usuario en la base de datos
-            const newUser =await service.add(normalizaData)
+            const newUser =await userModel.create(data)
             
     
             return { success: true, data: `el usuario ${newUser.firstname}, se registró correctamente` };

@@ -35,7 +35,7 @@ app.use(session({
     saveUninitialized: false,  // No guarda sesiones vacías
     store: MongoStore.create({
         mongoUrl: config.MONGODB_URI,
-        ttl: 6000,
+        ttl: 60000,
         autoRemove: 'native'  // Limpia sesiones expiradas automáticamente
     }),
     cookie: {
