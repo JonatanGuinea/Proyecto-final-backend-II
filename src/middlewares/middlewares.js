@@ -1,5 +1,4 @@
 export const auth = (req, res, next) => {
-    console.log(req.session.userData);
     
     if (req.session?.passport?.user) {
         return next();

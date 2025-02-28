@@ -9,7 +9,7 @@ const router = Router();
 const cartController = new CartController();
 const productController = new ProductController();
 
-router.get('/', auth, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         // Esperamos a que se obtenga la lista de carritos
         const carts = await cartController.get();
@@ -56,7 +56,7 @@ router.post('/add', auth, async (req, res) => {
         if (!cart) {
             cart = await cartController.create({ userId, products: [] });
         }
-console.log(req.user);
+
 
         // Verificar si el producto ya está en el carrito
         // const productIndex = cart.products.findIndex(p => p.productId.toString() === productId);
@@ -82,7 +82,8 @@ console.log(req.user);
 router.post('/:cid/purchase', async (req, res) => {
     try {
         const { cid } = req.params;
-
+        console.log(req.session.userData);
+        
         // Verificar usuario autenticado
         if (!req.user || !req.user.email) {
             return res.status(400).send({ error: 'Usuario no autenticado' });
